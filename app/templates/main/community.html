@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block title %}Community · WTF Forms{% endblock %}
+
+{% block head %}
+<style>
+    /* wider, scrollable layout for the data page */
+    body { align-items: flex-start; padding: 32px 0 48px; }
+    .container { max-width: 620px; }
+
+    .page-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 6px; flex-wrap: wrap; gap: 8px; }
+
+    .stats {
+        display: flex;
+        gap: 10px;
+        margin: 18px 0 26px;
+    }
+    .stat {
+        flex: 1;
+        background: #fafafa;
+        border: 1.5px solid #eee;
+        border-radius: 12px;
+        padding: 14px;
+        text-align: center;
+    }
+    .stat strong { display: block; font-size: 1.5rem; letter-spacing: -0.5px; }
+    .stat span { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px; color: #888; }
+
+    .user-block {
+        border-top: 1.5px solid #eee;
+        padding: 20px 0;
+        animation: rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+    .user-block:nth-child(2) { animation-delay: 0.08s; }
+    .user-block:nth-child(3) { animation-delay: 0.16s; }
+    .user-block:nth-child(4) { animation-delay: 0.24s; }
+
+    .user-row { display: flex; align-items: center; gap: 12px; margin-bottom: 4px; }
+    .avatar {
+        width: 40px; height: 40px; flex-shrink: 0;
+        border-radius: 50%;
+        background: #0a0a0a;
+        color: #fff;
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+    .user-row h2 { font-size: 1.05rem; letter-spacing: -0.3px; }
+    .user-row .email { font-size: 0.78rem; color: #999; }
+    .bio { font-size: 0.85rem; color: #666; margin: 6px 0 14px; }
+
+    .post {
+        background: #fafafa;
+        border: 1.5px solid #eee;
+        border-radius: 10px;
+        padding: 12px 14px;
+        margin-bottom: 10px;
+        transition: transform .15s, box-shadow .2s;
+    }
+    .post:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(0,0,0,0.06); }
+    .post h3 { font-size: 0.9rem; margin-bottom: 4px; }
+    .post p { font-size: 0.82rem; color: #666; line-height: 1.5; }
+    .post time { font-size: 0.7rem; color: #aaa; display: block; margin-top: 6px; }
+
+    .empty { font-size: 0.82rem; color: #aaa; font-style: italic; }
+
+    .back-link {
+        display: inline-block;
+        margin-top: 8px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: #0a0a0a;
+        text-decoration: none;
+        border-bottom: 1.5px solid #0a0a0a;
+        padding-bottom: 1px;
+    }
+
+    @keyframes rise {
+        from { opacity: 0; transform: translateY(14px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .user-block { animation: none; }
+        .post, .post:hover { transform: none; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <h1>Community</h1>
+    <a class="back-link" href="{{ url_for('main.register') }}">← Register</a>
+</div>
+<p class="subtitle">Everything below comes straight from the database.</p>
+
+<div class="stats">
+    <div class="stat"><strong>{{ users|length }}</strong><span>Users</span></div>
+    <div class="stat"><strong>{{ post_count }}</strong><span>Posts</span></div>
+</div>
+
+{% for user in users %}
+<div class="user-block">
+    <div class="user-row">
+        <div class="avatar">{{ user.username[0] }}</div>
+        <div>
+            <h2>{{ user.username }}</h2>
+            <div class="email">{{ user.email }}</div>
+        </div>
+    </div>
+    {% if user.bio %}<p class="bio">{{ user.bio }}</p>{% endif %}
+
+    {% for post in user.posts %}
+    <div class="post">
+        <h3>{{ post.title }}</h3>
+        <p>{{ post.body }}</p>
+        <time>{{ post.created_at.strftime("%b %d, %Y") }}</time>
+    </div>
+    {% else %}
+    <p class="empty">No posts yet.</p>
+    {% endfor %}
+</div>
+{% else %}
+<p class="empty">No users yet — run <code>pipenv run python seed.py</code>.</p>
+{% endfor %}
+{% endblock %}
